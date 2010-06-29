@@ -42,7 +42,7 @@ use File::Basename qw();
 use Getopt::Long qw();
 
 my $DEBUG = 0;
-my $GREP_COMMON = '/usr/bin/grep --color=never';
+my $GREP_COMMON = 'grep --color=never';
 
 my @COLOR_MATCHED    = map "1;2;4;" . $_, qw/31 32 34 35 36 37 38/;
 my $COLOR_FILENAME   = '1;4;37';
@@ -178,14 +178,14 @@ Options:
             printf(
                 "\n[%sm${file}[m\n\n",
                 $COLOR_FILENAME,
-            );
+            ) if (@target > 1);
         }
         $file_prev = $file;
 
         for (
              my ($i, $cl, $_re) = (0, $COLOR_MATCHED[0]);
              defined ($_re = $re[$i]);
-             $i++, $cl = $COLOR_MATCHED[$i]
+             $i++, $cl = $COLOR_MATCHED[$i % @COLOR_MATCHED]
         ) {
             # エスケープシーケンスの特性上，2つめ以降の正規表現が 「\d」「m」のときにバグる
             $line =~ s/($_re)/[${cl}m$1[m/g;
@@ -202,5 +202,6 @@ if (File::Basename::basename(__FILE__) eq File::Basename::basename($0)) {
     my $ret = main(@ARGV);
     exit $ret;
 }
+
 1;
 __END__
